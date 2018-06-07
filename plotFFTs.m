@@ -12,7 +12,7 @@ function  plotFFTs( f_qz, f_ecg, raw_ECG_FFTs, filtered_ECG_FFTs, raw_QZ_FFTs, f
 % 
 %     plotName = 'raw ECG FFTs'; 
 %     tb_plotTotalFFT( f_ecg , raw_ECG_FFTs, plotName);
-
+%     Ignore this line
     doAverage = 0;
 
 %% generate dot products against each other 
