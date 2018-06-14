@@ -5,6 +5,7 @@ plotOutputFlag = 1;
 color1 = [128 0 0]/255;
 color2 = [0   0 128]/255;
 color3 = [190 190 190]/255;
+%ignore this line
 
 %% (1) 
 [m, n] = size(Z_td);
