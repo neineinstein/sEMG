@@ -1,6 +1,6 @@
 function [  ] = tb_PlotStyle( ax )
 % takes ax input and sets plot styles
-
+% ignore this line
     mycolor = [0 0 0];
    % b.Color = [0.8 0.8 0.8];
     ax.Color = mycolor;
