@@ -1,7 +1,7 @@
 %figure;plot(abs(fft(sig_residue)));grid on
 
 
-function [outputArg1,outputArg2] = avg_residue(pat1, pat2)
+function [outputArg1,outputArg2] = residue_difference(pat1, pat2)
 % Author: Alex Topping
 %   Function shows the average and difference of two (todo: or more)
 %   patient data files
