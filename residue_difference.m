@@ -1,6 +1,3 @@
-%figure;plot(abs(fft(sig_residue)));grid on
-
-
 function [outputArg1,outputArg2] = residue_difference(pat1, pat2)
 % Author: Alex Topping
 %   Function shows the average and difference of two (todo: or more)
@@ -50,13 +47,6 @@ string_sheet = ['R1_6'];   % get the data from R1_6 sheet
 string_cells = ['B' num2str(xls_begin) ':B' num2str(xls_end)]; % range of data cells
 raw = -xlsread(string_xls_name,string_sheet,string_cells); %% 
 
-figure;
-plot(raw);grid on; title(['recorded data'  string_xls_name]);
-xlabel('# sample ');
-ylabel('Amplitude [mV]');
-
-
-
 %%% by observation
 %%% choose t_start to avoid starting with incomplete dominant echo
 %%% choose t_end to avoid starting with incomplete dominant echo 
@@ -203,46 +193,6 @@ end %main loop
     
    fs = 2048;
    t1 = t.* (1/fs);
-    figure;
-    
-    %% plot IMF 1 through 5 
- for ii = 2:6
-      subplot(6,1,ii);
-      
-       plot(t1,imf((ii-1),:));
-       xlim([0 max(t1)]);
-        ylim([-15 15]);  
-       % title(['imf #' num2str(ii)]);
-       grid on;
- end  
-   
-    file.t1 = t1;
-    file.original_sig = original_sig;
-    
-%%5 plot the original signal
-    subplot(6,1,1);
-   plot(t1,original_sig);grid on;
-   xlim([0 max(t1)]);   
-     ylim([-15 15]); 
-     grid on;
-     title(' orignal, imf1, imf2, imf3, imf4, imf5 (top to down)');
-     
-     %%%%%%%%%%%%%%%%%%%%%
-         figure;
-		 title(' imf6 to 11 (top to down)');
-		 
-         
- %%% plot IMF 6 through 11
- for ii = 1:5
-      subplot(6,1,ii);
-      
-       plot(t1,imf((ii+5),:));
-       xlim([0 max(t1)]);
-        ylim([-15 15]);  
-       % title(['imf #' num2str(ii)]);
-       grid on;
- end  
-      
      
  %%%%%%%
  
@@ -277,29 +227,7 @@ end %main loop
       file.filtered_sig = filtered_sig;
       
       y = 50;
-      figure;
-      subplot(3,1,1);
-      plot(t1,original_sig);
-      title('Original Signal')
-      grid on;
-      ylim([-y y])
-      subplot(3,1,2);
-      plot(t1,reconstructed_sig_EMD);
-      title(['Reconstructed Signal (imf' num2str(p) '+...+imf' num2str(q) ')']);
-      grid on;
-      ylim([-y y])
-      subplot(3,1,3);
-      plot(t1,filtered_sig);
-      title('Filtered Signal');
-      grid on;
-      ylim([-y y])
-     
 
-    
-    
-
-   
- 
     
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  reconstructed_sig_EMD
     
@@ -313,84 +241,25 @@ sig  = reconstructed_sig_EMD; %%%%%%%%%%%%%%
 peak_loc_seg = zeros(NEcho,1);
 
 
-figure;
-plot(reconstructed_sig_EMD);
-hold on;
-%%% segment the data
-for ii = 1 : NEcho
-   [peak_val  peak_loc] = max(abs(sig_residue));   
-   peak_loc_seg(ii) = peak_loc;
-   peak_begin = max(1,peak_loc - window_size);
-   peak_end = min(NSamples, peak_loc + window_size);
-   sig_seg(ii,peak_begin:peak_end) = sig_residue(peak_begin:peak_end);    
-   sig_residue(peak_begin:peak_end)= 0;
-   plot(sig_seg(ii,:),'r');
-end
-title('segementated signal'); grid on;
-
-
-
-
-
-
-figure;subplot(211); 
-plot(original_sig);grid on; hold on; plot(reconstructed_sig_EMD,'g');grid on; plot(sig_residue,'r');
-subplot(212);
-plot(abs(fft(original_sig))); hold on; plot(abs(fft(reconstructed_sig_EMD)),'g'); grid on; hold on; plot(abs(fft(sig_residue)),'r');
-xlim([0 2000]);
-
-
-
-figure;subplot(311); 
-plot(original_sig);grid on; subplot(312); plot(reconstructed_sig_EMD,'g');grid on; subplot(313); plot(sig_residue,'r'); grid on;
-
-figure;
-subplot(311);
-plot(abs(fft(original_sig))); grid on;  xlim([0 2000]);  subplot(312); plot(abs(fft(reconstructed_sig_EMD)),'g'); grid on; xlim([0 2000]); subplot(313); plot(abs(fft(sig_residue)),'r');
-xlim([0 2000]); grid on;
-
-
-
 STFT_M = 256;
 STFT_fm = f_sampling;
 
 
     [orig_T,orig_F,orig_SP] = STFT([t1; original_sig]', STFT_M, STFT_fm);
-    figure; 
-    contour(orig_T,orig_F,orig_SP);
-    title(sprintf('Contour of STFT of Orignal Signal'));
-    grid on;
-    xlabel('Time [S]');
-    ylabel('Freq [Hz]');
-    grid on;
-    
+
     file.orig_T = orig_T;
     file.orig_F = orig_F;
     file.orig_SP = orig_SP;
 
 
     [reconstructed_T,reconstructed_F,reconstructed_SP] = STFT([t1; reconstructed_sig_EMD]', STFT_M, STFT_fm);
-    figure; 
-    contour(reconstructed_T,reconstructed_F,reconstructed_SP);
-    title(sprintf('Contour of STFT of EMD Reconstructed Signal'));
-    grid on;
-    xlabel('Time [S]');
-    ylabel('Freq [Hz]');
-    grid on;
-    
+
     file.reconstructed_T = reconstructed_T;
     file.reconstructed_F = reconstructed_F;
     file.reconstructed_SP = reconstructed_SP;
     
     [residue_T,residue_F, residue_SP] = STFT([t1; sig_residue]', STFT_M, STFT_fm);
-    figure; 
-    contour(residue_T,residue_F,residue_SP);
-    title(sprintf('Contour of STFT of Residue Signal'));
-    grid on;
-    xlabel('Time [S]');
-    ylabel('Freq [Hz]');
-    grid on;
-  
+
     file.filtered_T = residue_T;
     file.filtered_F = residue_F;
     file.filtered_SP = residue_SP;
@@ -402,36 +271,19 @@ STFT_fm = f_sampling;
     removed_sig = original_sig - reconstructed_sig_EMD; 
     
    [removed_sig_T,removed_sig_F, removed_sig_SP] = STFT([t1; removed_sig]', STFT_M, STFT_fm);
-    figure; 
-    contour(removed_sig_T,removed_sig_F, removed_sig_SP);
-    title(sprintf('Contour of STFT of Residue Signal'));
-    grid on;
-    xlabel('Time [S]');
-    ylabel('Freq [Hz]');
-    grid on;
-  
+
     file.filtered_T = removed_sig_T;
     file.filtered_F = removed_sig_F;
     file.filtered_SP = removed_sig_SP;
     
-close all
+
 pat_1_residue = abs(fft(sig_residue));
-figure;plot(pat_1_residue);grid on
-title("yo")
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-
-
-%%%%%%%%% 
-f_sampling = 2048; %%sampling rate
-n_samples = f_sampling*5; %% pick 5 second long data
-xls_begin = 9; %% start at sheet B9
-xls_end = n_samples-1+xls_begin; %% select n_samples
 
 %string_xls_name = ['103-normal-M-6-6-13.xlsx']; %% file name: 103M-normal, 115F-normal, 203F-AS,208M-AS
 
@@ -448,11 +300,6 @@ string_sheet = ['R1_6'];   % get the data from R1_6 sheet
 string_cells = ['B' num2str(xls_begin) ':B' num2str(xls_end)]; % range of data cells
 raw = -xlsread(string_xls_name,string_sheet,string_cells); %% 
 
-figure;
-plot(raw);grid on; title(['recorded data'  string_xls_name]);
-xlabel('# sample ');
-ylabel('Amplitude [mV]');
-
 
 
 %%% by observation
@@ -600,48 +447,7 @@ end %main loop
 [NDecompose junk] = size(imf);
     
    fs = 2048;
-   t1 = t.* (1/fs);
-    figure;
-    
-    %% plot IMF 1 through 5 
- for ii = 2:6
-      subplot(6,1,ii);
-      
-       plot(t1,imf((ii-1),:));
-       xlim([0 max(t1)]);
-        ylim([-15 15]);  
-       % title(['imf #' num2str(ii)]);
-       grid on;
- end  
-   
-    file.t1 = t1;
-    file.original_sig = original_sig;
-    
-%%5 plot the original signal
-    subplot(6,1,1);
-   plot(t1,original_sig);grid on;
-   xlim([0 max(t1)]);   
-     ylim([-15 15]); 
-     grid on;
-     title(' orignal, imf1, imf2, imf3, imf4, imf5 (top to down)');
-     
-     %%%%%%%%%%%%%%%%%%%%%
-         figure;
-		 title(' imf6 to 11 (top to down)');
-		 
-         
- %%% plot IMF 6 through 11
- for ii = 1:5
-      subplot(6,1,ii);
-      
-       plot(t1,imf((ii+5),:));
-       xlim([0 max(t1)]);
-        ylim([-15 15]);  
-       % title(['imf #' num2str(ii)]);
-       grid on;
- end  
-      
-     
+   t1 = t.* (1/fs);     
  %%%%%%%
  
  eng_imf = zeros(NDecompose, 1);
@@ -675,23 +481,7 @@ end %main loop
       file.filtered_sig = filtered_sig;
       
       y = 50;
-      figure;
-      subplot(3,1,1);
-      plot(t1,original_sig);
-      title('Original Signal')
-      grid on;
-      ylim([-y y])
-      subplot(3,1,2);
-      plot(t1,reconstructed_sig_EMD);
-      title(['Reconstructed Signal (imf' num2str(p) '+...+imf' num2str(q) ')']);
-      grid on;
-      ylim([-y y])
-      subplot(3,1,3);
-      plot(t1,filtered_sig);
-      title('Filtered Signal');
-      grid on;
-      ylim([-y y])
-     
+
 
     
     
@@ -711,84 +501,25 @@ sig  = reconstructed_sig_EMD; %%%%%%%%%%%%%%
 peak_loc_seg = zeros(NEcho,1);
 
 
-figure;
-plot(reconstructed_sig_EMD);
-hold on;
-%%% segment the data
-for ii = 1 : NEcho
-   [peak_val  peak_loc] = max(abs(sig_residue));   
-   peak_loc_seg(ii) = peak_loc;
-   peak_begin = max(1,peak_loc - window_size);
-   peak_end = min(NSamples, peak_loc + window_size);
-   sig_seg(ii,peak_begin:peak_end) = sig_residue(peak_begin:peak_end);    
-   sig_residue(peak_begin:peak_end)= 0;
-   plot(sig_seg(ii,:),'r');
-end
-title('segementated signal'); grid on;
-
-
-
-
-
-
-figure;subplot(211); 
-plot(original_sig);grid on; hold on; plot(reconstructed_sig_EMD,'g');grid on; plot(sig_residue,'r');
-subplot(212);
-plot(abs(fft(original_sig))); hold on; plot(abs(fft(reconstructed_sig_EMD)),'g'); grid on; hold on; plot(abs(fft(sig_residue)),'r');
-xlim([0 2000]);
-
-
-
-figure;subplot(311); 
-plot(original_sig);grid on; subplot(312); plot(reconstructed_sig_EMD,'g');grid on; subplot(313); plot(sig_residue,'r'); grid on;
-
-figure;
-subplot(311);
-plot(abs(fft(original_sig))); grid on;  xlim([0 2000]);  subplot(312); plot(abs(fft(reconstructed_sig_EMD)),'g'); grid on; xlim([0 2000]); subplot(313); plot(abs(fft(sig_residue)),'r');
-xlim([0 2000]); grid on;
-
-
-
 STFT_M = 256;
 STFT_fm = f_sampling;
 
 
     [orig_T,orig_F,orig_SP] = STFT([t1; original_sig]', STFT_M, STFT_fm);
-    figure; 
-    contour(orig_T,orig_F,orig_SP);
-    title(sprintf('Contour of STFT of Orignal Signal'));
-    grid on;
-    xlabel('Time [S]');
-    ylabel('Freq [Hz]');
-    grid on;
-    
+
     file.orig_T = orig_T;
     file.orig_F = orig_F;
     file.orig_SP = orig_SP;
 
 
     [reconstructed_T,reconstructed_F,reconstructed_SP] = STFT([t1; reconstructed_sig_EMD]', STFT_M, STFT_fm);
-    figure; 
-    contour(reconstructed_T,reconstructed_F,reconstructed_SP);
-    title(sprintf('Contour of STFT of EMD Reconstructed Signal'));
-    grid on;
-    xlabel('Time [S]');
-    ylabel('Freq [Hz]');
-    grid on;
-    
+
     file.reconstructed_T = reconstructed_T;
     file.reconstructed_F = reconstructed_F;
     file.reconstructed_SP = reconstructed_SP;
     
     [residue_T,residue_F, residue_SP] = STFT([t1; sig_residue]', STFT_M, STFT_fm);
-    figure; 
-    contour(residue_T,residue_F,residue_SP);
-    title(sprintf('Contour of STFT of Residue Signal'));
-    grid on;
-    xlabel('Time [S]');
-    ylabel('Freq [Hz]');
-    grid on;
-  
+
     file.filtered_T = residue_T;
     file.filtered_F = residue_F;
     file.filtered_SP = residue_SP;
@@ -800,25 +531,24 @@ STFT_fm = f_sampling;
     removed_sig = original_sig - reconstructed_sig_EMD; 
     
    [removed_sig_T,removed_sig_F, removed_sig_SP] = STFT([t1; removed_sig]', STFT_M, STFT_fm);
-    figure; 
-    contour(removed_sig_T,removed_sig_F, removed_sig_SP);
-    title(sprintf('Contour of STFT of Residue Signal'));
-    grid on;
-    xlabel('Time [S]');
-    ylabel('Freq [Hz]');
-    grid on;
-  
+
     file.filtered_T = removed_sig_T;
     file.filtered_F = removed_sig_F;
     file.filtered_SP = removed_sig_SP;
     
-close all
+
 pat_2_residue=abs(fft(sig_residue));
+
+
 figure;plot(pat_1_residue);
 title("Patient 1 residue")
 figure;plot(pat_2_residue);
 title("Patient 2 residue")
-res_matrix_avg = mean([pat_1_residue,pat_2_residue])
+total_residue = pat_1_residue + pat_2_residue;
+mean_residue = total_residue ./ 2; % 2 must be paramaterized for averages of more than 2 patients
+figure;plot(mean_residue);
+title("Average Residue of Patient 1 and Patient 2") % Verified on patient 116 and 225
+
 
 
 
