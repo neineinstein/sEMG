@@ -48,7 +48,7 @@ for patient_x = 1: num_patients
 
 
         string_cells = ['B' num2str(xls_begin) ':B' num2str(xls_end)]; % range of data cells
-        raw = -xlsread(string_xls_name,string_sheet,string_cells); %% 
+        raw = -xlsread(string(string_xls_name),string_sheet,string_cells); %% 
 
         %%% by observation
         %%% choose t_start to avoid starting with incomplete dominant echo
